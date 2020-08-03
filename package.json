@@ -18,7 +18,14 @@
   },
   "dependencies": {
     "@sveltejs/gl": "0.0.30",
+    "@tailwindcss/ui": "^0.5.0",
+    "@types/node-fetch": "^2.5.7",
+    "@vercel/node": "^1.7.4",
     "lodash": "^4.17.19",
-    "sirv-cli": "^0.4.4"
+    "node-fetch": "^2.6.0",
+    "redaxios": "^0.3.0",
+    "sirv-cli": "^0.4.4",
+    "tailwindcss": "^1.6.1",
+    "typescript": "^3.9.7"
   }
 }
