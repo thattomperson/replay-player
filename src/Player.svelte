@@ -1,14 +1,15 @@
 <script>
-  /**
-   * SOCCAR_YSIZE=10280
-   * SOCCAR_XSIZE=8240
-   * SOCCAR_DEPTH=1960
-   * STADIUM_CORNER=1e3
-   * GOAL_WIDTH=1900
-   * GOAL_HEIGHT=800
-   * GOAL_DEPTH=900
-   * cornerWidth=Math.sqrt(2*Math.pow(STADIUM_CORNER,2))
-   */
+  
+  const SOCCAR_YSIZE=10280
+  const SOCCAR_XSIZE=8240
+  const SOCCAR_DEPTH=1960
+  const STADIUM_CORNER=1e3
+  const GOAL_WIDTH=1900
+  const GOAL_HEIGHT=800
+  const GOAL_DEPTH=900
+
+  // const cornerWidth=Math.sqrt(2*Math.pow(STADIUM_CORNER,2))
+
 
 
   import Mesh from '../util/Mesh/index.svelte';
@@ -19,7 +20,7 @@
 	import _ from 'lodash'
 
 	const replay = writable(null)
-	const game_time = writable(6)
+	const game_time = writable(-3)
 
 	const ball = derived([replay, game_time], ([replay, game_time]) => {
 		const ball = (replay && replay.balls.filter(({ start, end }) => start < game_time && end > game_time)[0]) || null
@@ -60,11 +61,10 @@
 		}).filter(Boolean)
   })
   
-  $: console.log($cars)
 
-    $: fps = frames.reduce((total, frame) => total + frame) / frames.length;
+  $: fps = frames.reduce((total, frame) => total + frame) / frames.length;
 
-    let frames = Array(30).fill(0); // for smoothing out FPS counter
+  let frames = Array(30).fill(0); // for smoothing out FPS counter
 	let paused = true
 
 	onMount(async () => {
@@ -99,35 +99,49 @@
 
 <GL.Scene>
   <GL.Target id="center" location={[0, 0, 0]}/>
-  <GL.OrbitControls location={[0,0,12000]} minDistance={12000} let:location let:target>
+  <GL.OrbitControls location={[0,5000,10000]} minDistance={1000} let:location let:target>
     <GL.PerspectiveCamera far={50000} lookAt={target} {location}/>
   </GL.OrbitControls>
   <GL.AmbientLight intensity={1}/>
-  <Mesh
-    geometry={GL.plane()}
-    location={[0, 0, 0]}
-    scale={[4020, 5210, 1]}
-    uniforms={{ color: 0xc0c0c0 }}
-  />
 
-  {#if $ball}
-    <Mesh
-      geometry={GL.sphere({turns:12, bands:12})}
-      location={$ball.pos}
-      uniforms={{ color: 0x00ff00 }}
-      scale={80}
-    />
-  {/if}
+  <GL.Group
+    rotation={[270,0,0]}
+  >
+    <GL.Group>
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, 0, 0]}
+        scale={[SOCCAR_XSIZE/2, SOCCAR_YSIZE/2, 1]}
+        uniforms={{ color: 0xc0c0c0 }}
+      />
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, 0, 0]}
+        rotation={[0, 90, 0]}
+        scale={[1000, 1000, 1]}
+        uniforms={{ color: 0xc0c0c0 }}
+      />
+    </GL.Group>
 
-  {#each $cars as car (car.player)}
-    <Mesh
-      geometry={models.car()}
-      quaternion={car.quat}
-      location={car.pos}
-      uniforms={{ color: car.color }}
-      scale={.5}
-    />
-  {/each}
+    {#if $ball}
+      <Mesh
+        geometry={GL.sphere({turns:12, bands:12})}
+        location={$ball.pos}
+        uniforms={{ color: 0x00ff00 }}
+        scale={80}
+      />
+    {/if}
+
+    {#each $cars as car (car.player)}
+      <Mesh
+        geometry={models.car()}
+        quaternion={car.quat}
+        location={car.pos}
+        uniforms={{ color: car.color }}
+        scale={.5}
+      />
+    {/each}
+  </GL.Group>
 </GL.Scene>
 <div class="controls">
   <label>
