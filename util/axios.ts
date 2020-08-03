@@ -62,8 +62,7 @@ type Response<T> = {
  */
 
 /** */
-export default (function create(defaults: Options) {
-	defaults = defaults || {};
+export default (function create(defaults: Options = {}) {
 
 	/**
 	 * @public
@@ -72,28 +71,26 @@ export default (function create(defaults: Options) {
 	 */
 	redaxios.request = redaxios;
 
-	redaxios.get = <T>(url: string|Options, config?: Options) => redaxios<T>(url, config, 'get');
-	redaxios.delete = <T>(url: string|Options, config?: Options) => redaxios<T>(url, config, 'delete');
-	redaxios.options = <T>(url: string|Options, config?: Options) => redaxios<T>(url, config, 'options');
-	redaxios.post = <T>(url: string|Options, data?: any, config?: Options) => redaxios<T>(url, config, 'post', data);
-	redaxios.put = <T>(url: string|Options, data?: any, config?: Options) => redaxios<T>(url, config, 'put', data);
-	redaxios.patch = <T>(url: string|Options, data?: any, config?: Options) => redaxios<T>(url, config, 'patch', data);
+	redaxios.get = <T>(url: string|Options, config: Options = {}) => redaxios<T>(url, config, 'get');
+	redaxios.delete = <T>(url: string|Options, config: Options = {}) => redaxios<T>(url, config, 'delete');
+	redaxios.options = <T>(url: string|Options, config: Options = {}) => redaxios<T>(url, config, 'options');
+	redaxios.post = <T>(url: string|Options, data: any = {}, config: Options = {}) => redaxios<T>(url, config, 'post', data);
+	redaxios.put = <T>(url: string|Options, data: any = {}, config: Options = {}) => redaxios<T>(url, config, 'put', data);
+	redaxios.patch = <T>(url: string|Options, data: any = {}, config: Options = {}) => redaxios<T>(url, config, 'patch', data);
 
 	/**
 	 * Issues a request.
-	 * @public
-	 * @template T
 	 * @param {string | Options} url
 	 * @param {Options} [config]
 	 * @param {any} [_method]
 	 * @param {any} [_data]
 	 * @returns {Promise<Response<T>>}
 	 */
-	function redaxios<T>(url: string|Options, config?: Options, _method?: HTTPMethod, _data?: any): Promise<Response<T>> {
+	function redaxios<T>(url: string|Options, config: Options = {}, _method?: HTTPMethod, _data?: any): Promise<Response<T>> {
 		if (typeof url !== 'string') {
 			config = url;
 			url = <string>config.url;
-		}
+    }
 
 		const response = /** @type {Response<any>} */ ({ config });
 
@@ -133,8 +130,8 @@ export default (function create(defaults: Options) {
 		return fetch(url, {
 			method: _method || options.method,
 			body: data,
-			headers: merge<Headers[]>(options.headers, customHeaders, true),
-			credentials: options.withCredentials ? 'include' : undefined
+			headers: merge<Headers[]>(options.headers || {}, customHeaders),
+			// credentials: options.withCredentials ? 'include' : undefined
 		}).then((res) => {
 			for (const i in res) {
 				if (typeof res[i] != 'function') response[i] = res[i];

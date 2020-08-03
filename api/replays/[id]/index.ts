@@ -15,6 +15,6 @@ type Response = {
 }
 
 export default async (req: NowRequest, res: NowResponse) => {
-    const response = await client.get<Response>('replays?uploader=me')
-    res.json(response.data.list)
+    const response = await client.get<Response>(`/replays/${req.query.id}`)
+    res.json(response.data)
 }

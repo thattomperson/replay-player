@@ -1,5 +1,19 @@
 <script>
-	import * as GL from '@sveltejs/gl';
+  /**
+   * SOCCAR_YSIZE=10280
+   * SOCCAR_XSIZE=8240
+   * SOCCAR_DEPTH=1960
+   * STADIUM_CORNER=1e3
+   * GOAL_WIDTH=1900
+   * GOAL_HEIGHT=800
+   * GOAL_DEPTH=900
+   * cornerWidth=Math.sqrt(2*Math.pow(STADIUM_CORNER,2))
+   */
+
+
+  import Mesh from '../util/Mesh/index.svelte';
+  import * as GL from '@sveltejs/gl';
+  import * as models from './models'
 	import { onMount } from 'svelte';
 	import { writable, derived } from 'svelte/store'
 	import _ from 'lodash'
@@ -29,19 +43,24 @@
 		if (!replay) return []
 		return replay.players.map(player => {
 			const car = _.find(player.cars, car => car.start < game_time && car.end > game_time)
-			if (!car) return
-			const pos_index = (_.findIndex(car.times, t => t > game_time) - 1) * 3
-			if (!pos_index) return
+      if (!car) return
+      const index = (_.findIndex(car.times, t => t > game_time) - 1)
+      if (!index) return
 
+			const pos_index = index * 3
+			const quat_index = index * 4
 			
 			return {
 				player: player.player,
 				platform: player.platform,
 				color: player.team === 'orange' ? 0xff0000 : 0x0000ff,
-				pos: [car.pos[pos_index], car.pos[pos_index + 1], car.pos[pos_index + 2]],
+        pos: [car.pos[pos_index], car.pos[pos_index + 1], car.pos[pos_index + 2]],
+        quat: [car.quat[quat_index], car.quat[quat_index + 1], car.quat[quat_index + 2], car.quat[quat_index + 3]],
 			}
 		}).filter(Boolean)
-	})
+  })
+  
+  $: console.log($cars)
 
     $: fps = frames.reduce((total, frame) => total + frame) / frames.length;
 
@@ -49,34 +68,9 @@
 	let paused = true
 
 	onMount(async () => {
-    $replay = (await import('./replay')).default
-    
-    let xs = [];
-    let ys = [];
-    let zs = [];
-    for (let ball_index = 0; ball_index < $replay.balls.length; ball_index++) {
-      const ball = $replay.balls[ball_index];
-      for (let pos_index = 0; pos_index < ball.pos.length; pos_index += 3) {
-        xs.push(ball.pos[pos_index] || 0);
-        ys.push(ball.pos[pos_index+1] || 0);
-        zs.push(ball.pos[pos_index+2] || 0);
-      }
-    }
-
-    console.log(xs)
-
-    console.log('Max', {
-      x: Math.max(...xs),
-      y: Math.max(...ys),
-      z: Math.max(...zs),
-    })
-    console.log('Min', {
-      x: Math.min(...xs),
-      y: Math.min(...ys),
-      z: Math.min(...zs),
-    })
-
-    
+    // $replay = (await import('./replay')).default
+    $replay = await fetch('/api/replays/2ffa2591-4e84-46ce-ba47-bcbe4ea85809/replay')
+      .then(r => r.json())
 
 		paused = false
 
@@ -109,7 +103,7 @@
     <GL.PerspectiveCamera far={50000} lookAt={target} {location}/>
   </GL.OrbitControls>
   <GL.AmbientLight intensity={1}/>
-  <GL.Mesh
+  <Mesh
     geometry={GL.plane()}
     location={[0, 0, 0]}
     scale={[4020, 5210, 1]}
@@ -117,7 +111,7 @@
   />
 
   {#if $ball}
-    <GL.Mesh
+    <Mesh
       geometry={GL.sphere({turns:12, bands:12})}
       location={$ball.pos}
       uniforms={{ color: 0x00ff00 }}
@@ -126,11 +120,12 @@
   {/if}
 
   {#each $cars as car (car.player)}
-    <GL.Mesh
-      geometry={GL.box()}
-                location={car.pos}
+    <Mesh
+      geometry={models.car()}
+      quaternion={car.quat}
+      location={car.pos}
       uniforms={{ color: car.color }}
-      scale={100}
+      scale={.5}
     />
   {/each}
 </GL.Scene>
