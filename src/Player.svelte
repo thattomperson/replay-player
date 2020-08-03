@@ -10,17 +10,16 @@
 
   // const cornerWidth=Math.sqrt(2*Math.pow(STADIUM_CORNER,2))
 
-
-
   import Mesh from '../util/Mesh/index.svelte';
   import * as GL from '@sveltejs/gl';
   import * as models from './models'
 	import { onMount } from 'svelte';
 	import { writable, derived } from 'svelte/store'
-	import _ from 'lodash'
+  import _ from 'lodash'
+  import * as quat from 'gl-matrix/quat'
 
 	const replay = writable(null)
-	const game_time = writable(-3)
+	const game_time = writable(6)
 
 	const ball = derived([replay, game_time], ([replay, game_time]) => {
 		const ball = (replay && replay.balls.filter(({ start, end }) => start < game_time && end > game_time)[0]) || null
@@ -49,14 +48,18 @@
       if (!index) return
 
 			const pos_index = index * 3
-			const quat_index = index * 4
+      const quat_index = index * 4
+      
+      const a = quat.fromValues(car.quat[quat_index], car.quat[quat_index + 1], car.quat[quat_index + 2], car.quat[quat_index + 3]);
+      let q = quat.create()
+      quat.rotateZ(q, a, 1.5708)
 			
 			return {
 				player: player.player,
 				platform: player.platform,
 				color: player.team === 'orange' ? 0xff0000 : 0x0000ff,
         pos: [car.pos[pos_index], car.pos[pos_index + 1], car.pos[pos_index + 2]],
-        quat: [car.quat[quat_index], car.quat[quat_index + 1], car.quat[quat_index + 2], car.quat[quat_index + 3]],
+        quat: q,
 			}
 		}).filter(Boolean)
   })
@@ -108,12 +111,14 @@
     rotation={[270,0,0]}
   >
     <GL.Group>
+      <!-- Ground -->
       <GL.Mesh
         geometry={GL.plane()}
         location={[0, 0, 0]}
         scale={[SOCCAR_XSIZE/2, SOCCAR_YSIZE/2, 1]}
         uniforms={{ color: 0xc0c0c0 }}
       />
+      <!-- Left -->
       <GL.Mesh
         geometry={GL.plane()}
         location={[-(SOCCAR_XSIZE/2), 0, SOCCAR_DEPTH/2]}
@@ -121,6 +126,7 @@
         scale={[SOCCAR_DEPTH/2, SOCCAR_YSIZE/2, 1]}
         uniforms={{ color: 0xffc0c0 }}
       />
+      <!-- Right -->
       <GL.Mesh
         geometry={GL.plane()}
         location={[SOCCAR_XSIZE/2, 0, SOCCAR_DEPTH/2]}
@@ -128,6 +134,7 @@
         scale={[SOCCAR_DEPTH/2, SOCCAR_YSIZE/2, 1]}
         uniforms={{ color: 0xffc0c0 }}
       />
+      <!-- Back -->
       <GL.Mesh
         geometry={GL.plane()}
         location={[0, SOCCAR_YSIZE/2, SOCCAR_DEPTH/2]}
@@ -135,12 +142,30 @@
         scale={[SOCCAR_DEPTH/2, SOCCAR_XSIZE/2, 1]}
         uniforms={{ color: 0xffc0c0 }}
       />
+      <!-- Goal -->
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, SOCCAR_YSIZE/2 - 50, GOAL_HEIGHT/2]}
+        rotation={[90, 90, 0]}
+        scale={[GOAL_HEIGHT/2, GOAL_WIDTH/2, 1]}
+        uniforms={{ color: 0xffffff }}
+      />
+
+      <!-- Front -->
       <GL.Mesh
         geometry={GL.plane()}
         location={[0, -(SOCCAR_YSIZE/2), SOCCAR_DEPTH/2]}
         rotation={[270, 270, 0]}
         scale={[SOCCAR_DEPTH/2, SOCCAR_XSIZE/2, 1]}
         uniforms={{ color: 0xffc0c0 }}
+      />
+      <!-- Goal -->
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, -(SOCCAR_YSIZE/2 - 50), GOAL_HEIGHT/2]}
+        rotation={[270, 270, 0]}
+        scale={[GOAL_HEIGHT/2, GOAL_WIDTH/2, 1]}
+        uniforms={{ color: 0xffffff }}
       />
     </GL.Group>
 
