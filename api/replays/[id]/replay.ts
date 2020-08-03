@@ -1,8 +1,5 @@
 import { NowRequest, NowResponse } from '@vercel/node'
 import axios from '../../../util/axios';
-import path from 'path'
-
-
 import levelup from 'levelup'
 import leveldown from 'leveldown'
  

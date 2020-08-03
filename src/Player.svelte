@@ -116,10 +116,31 @@
       />
       <GL.Mesh
         geometry={GL.plane()}
-        location={[0, 0, 0]}
+        location={[-(SOCCAR_XSIZE/2), 0, SOCCAR_DEPTH/2]}
         rotation={[0, 90, 0]}
-        scale={[1000, 1000, 1]}
-        uniforms={{ color: 0xc0c0c0 }}
+        scale={[SOCCAR_DEPTH/2, SOCCAR_YSIZE/2, 1]}
+        uniforms={{ color: 0xffc0c0 }}
+      />
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[SOCCAR_XSIZE/2, 0, SOCCAR_DEPTH/2]}
+        rotation={[0, 270, 0]}
+        scale={[SOCCAR_DEPTH/2, SOCCAR_YSIZE/2, 1]}
+        uniforms={{ color: 0xffc0c0 }}
+      />
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, SOCCAR_YSIZE/2, SOCCAR_DEPTH/2]}
+        rotation={[90, 90, 0]}
+        scale={[SOCCAR_DEPTH/2, SOCCAR_XSIZE/2, 1]}
+        uniforms={{ color: 0xffc0c0 }}
+      />
+      <GL.Mesh
+        geometry={GL.plane()}
+        location={[0, -(SOCCAR_YSIZE/2), SOCCAR_DEPTH/2]}
+        rotation={[270, 270, 0]}
+        scale={[SOCCAR_DEPTH/2, SOCCAR_XSIZE/2, 1]}
+        uniforms={{ color: 0xffc0c0 }}
       />
     </GL.Group>
 
