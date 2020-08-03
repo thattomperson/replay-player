@@ -179,6 +179,9 @@
     {/if}
 
     {#each $cars as car (car.player)}
+      <GL.Overlay location={car.pos}>
+        <small>{car.player}</small>
+      </GL.Overlay>
       <Mesh
         geometry={models.car()}
         quaternion={car.quat}
