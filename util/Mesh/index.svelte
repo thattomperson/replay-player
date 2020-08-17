@@ -11,6 +11,7 @@
 
 	export let location = [0, 0, 0];
   export let quaternion = [0, 0, 0, 1]
+  export let rotation = [0 ,0 ,0]
 	export let scale = 1;
 
 	export let geometry;
