@@ -60,7 +60,8 @@ import Stadium from './Stadium.svelte';
   $: fps = frames.reduce((total, frame) => total + frame) / frames.length;
 
   let frames = Array(30).fill(0); // for smoothing out FPS counter
-	let paused = true
+  let paused = true
+  let ballcam = false
 
 	onMount(async () => {
     // $replay = (await import('./replay')).default
@@ -95,13 +96,14 @@ import Stadium from './Stadium.svelte';
 <GL.Scene>
   <GL.Target id="center" location={[0, 0, 0]}/>
   <GL.OrbitControls location={[0,5000,10000]} minDistance={1000} let:location let:target>
-    <GL.PerspectiveCamera far={50000} lookAt={target} {location}/>
+    <GL.PerspectiveCamera far={50000} lookAt={ballcam && $ball ? 'ball' : target} {location}/>
   </GL.OrbitControls>
   <GL.AmbientLight intensity={.6}/>
   <GL.PointLight intensity={.6} location={[0,1000,0]}/>
 
   <Stadium>
     {#if $ball}
+    <GL.Target id="ball" location={$ball.pos}/>
       <Mesh
         geometry={GL.sphere({turns:12, bands:12})}
         location={$ball.pos}
@@ -128,6 +130,10 @@ import Stadium from './Stadium.svelte';
   <label>
     Pause
     <input type="checkbox" bind:checked={paused}>
+  </label>
+  <label>
+    Ball Cam
+    <input type="checkbox" bind:checked={ballcam}>
   </label>
 </div>
 
